@@ -48,9 +48,33 @@ function buildPlots() {
       }
     };
 
+    var bar_layout = {
+      height: 500,
+      width: 400,
+    };
+
     bar_data = [trace1];
 
-    Plotly.newPlot("bar", bar_data);
+    Plotly.newPlot("bar", bar_data, bar_layout);
+
+    // create trace
+    var trace2 = {
+      x: otu_ids,
+      y: sample_values,
+      text: otu_labels,
+      mode: 'markers',
+      marker: {
+          size: sample_values,
+          color: otu_ids,
+          colorscale: 'YlGnBu'
+      }
+    };
+
+    // create the data array for the plot
+    var bubble_data = [trace2];
+
+    // plot the bubble chat to the appropriate div
+    Plotly.newPlot('bubble', bubble_data);
 
 
     // Function used to filter for the sample that contains the same id as the selected id
@@ -65,6 +89,7 @@ function buildPlots() {
   });
 
 }
+
 
 buildPlots();
 
