@@ -17,6 +17,7 @@ function init(){
     });
 
     buildPlots(data.names[0]);
+    demoInfo(data.names[0]);
   });
 }
 
@@ -31,6 +32,23 @@ function updatePlotly() {
   var newSelection = dropdownMenu.property("value");
 
   buildPlots(newSelection);
+  demoInfo(newSelection);
+}
+
+function demoInfo(selected_id) {
+  d3.json("samples.json").then(function(data) {
+
+    var filteredMetaData = data.metadata.filter(meta => meta.id == selected_id)[0];
+
+    var metaData = d3.select("#sample-metadata");
+
+    metaData.html("")
+
+    Object.entries(filteredMetaData).forEach((key)=>{
+      metaData.append("p").text(key[0] + ":" + key[1]);
+    });
+
+  });
 
 }
 
