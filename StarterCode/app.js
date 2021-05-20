@@ -1,31 +1,56 @@
 
-
-
 d3.json('samples.json').then(function(data) {
   console.log(data)
 });
 
-function unpack(rows, index) {
-  return rows.map(function(row) {
-    return row[index];
+// intialize the app to pull from the first name in the dropdown list
+function init(){
+
+  d3.json('samples.json').then(function(data) {
+
+    // iterate through each sample id in the name array and insert it into the dropdown
+    data.names.forEach((name) => {
+      d3.select("#selDataset")
+      .append("option")
+      .text(name)
+      .property("value");
+    });
+
+    buildPlots(data.names[0]);
   });
 }
 
-function buildPlots() {
+// Call updatePlotly() when a change takes place to the DOM
+d3.selectAll("#selDataset").on("change", updatePlotly);
 
-  // Fetch the JSON data
+// this function is called when a dropdown menu item is selected
+function updatePlotly() {
+  // use D3 to select the dropdown menu
+  var dropdownMenu = d3.select("#selDataset");
+  // assign the value of the dropdown menu option to a variable
+  var newSelection = dropdownMenu.property("value");
+
+  buildPlots(newSelection);
+
+}
+
+function buildPlots(selected_id) {
+
+  // fetch the JSON data
   d3.json("samples.json").then(function(data) {
-    
-    var selected_sample = data.samples[1];
-    // console.log(selected_sample)
-    var sample_id = data.samples[1].id
-    // console.log(sample_id)
-    var otu_ids = data.samples[1].otu_ids
-    // console.log(otu_ids)
-    var otu_labels = data.samples[1].otu_labels
-    // console.log(otu_labels)
-    var sample_values = data.samples[1].sample_values
 
+    // filter the samples for the ID chosen
+    var filteredSample = data.samples.filter(sample => sample.id == selected_id);
+    
+    var sample_id = filteredSample[0].id
+    // console.log(sample_id)
+    var otu_ids = filteredSample[0].otu_ids
+    // console.log(otu_ids)
+    var otu_labels = filteredSample[0].otu_labels
+    // console.log(otu_labels)
+    var sample_values = filteredSample[0].sample_values
+
+    // sort arrays to get the top 10 values in each
     var top10_sample_values = sample_values.slice(0, 10).reverse();
     var top10_otu_ids = otu_ids.slice(0, 10).reverse();
     var top10_otu_labels = otu_labels.slice(0, 10).reverse();
@@ -36,7 +61,7 @@ function buildPlots() {
       otu_id_labels.push("OTU " + top10_otu_ids[i]);
     }
 
-    // Create the Trace
+    // create the trace
     var trace1 = {
       x: top10_sample_values,
       y: otu_id_labels,
@@ -48,6 +73,7 @@ function buildPlots() {
       }
     };
 
+    // layout of the bar chart
     var bar_layout = {
       height: 500,
       width: 400,
@@ -70,45 +96,21 @@ function buildPlots() {
       }
     };
 
+    // layout of the bubble chart
+    var bubble_layout = {
+      height: 700,
+      width: 1300,
+    };
+
     // create the data array for the plot
     var bubble_data = [trace2];
 
     // plot the bubble chat to the appropriate div
-    Plotly.newPlot('bubble', bubble_data);
-
-
-    // Function used to filter for the sample that contains the same id as the selected id
-    // function filterSamples(sample_id) {
-    //   return sample_id = selectedId;
-    // }
-
-    // Grab values from json object to build the plots
-    // var filteredSample = data.samples.id.filter(filterSamples);
-    // console.log(filteredSample)
+    Plotly.newPlot('bubble', bubble_data, bubble_layout);
 
   });
 
 }
 
-
-buildPlots();
-
-// function init(){
-//   // Submit Button handler
-//   function selectedData() {
-//     // Prevent the page from refreshing
-//     d3.event.preventDefault();
-
-//     // Set '940' as the default Test Subject ID No.
-//     d3.select("#selDataset").node().value = "940";
-
-//     // Select the input value from the form
-//     var selectedId = d3.select("#selDataset").node().value;
-//     console.log(selectedId);
-
-//     // Build the plot with the new stock
-//     buildPlots(selectedId);
-//   }
-// }
-
-// init();
+// call to initializes the app
+init();
